@@ -3,7 +3,6 @@ name: Il2CppInspectorRedux Build
 on:
   push:
     branches: [master, refactored-versioning]
-
   workflow_dispatch:
 
 jobs:
@@ -15,29 +14,27 @@ jobs:
         with:
           submodules: true
 
-      # Install .NET 9 SDK explicitly
-      - name: Install .NET 9 SDK
+      - name: Setup .NET SDK
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '9.0.x'
 
-      - uses: microsoft/setup-msbuild@v1.1
-
-      - uses: actions/cache@v3
+      - name: Cache NuGet packages
+        uses: actions/cache@v3
         with:
           path: ~/.nuget/packages
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
           restore-keys: |
-              ${{ runner.os }}-nuget-
+            ${{ runner.os }}-nuget-
 
       - name: Restore NuGet packages
         run: dotnet restore
-      
+
       - name: Build GUI
-        run: msbuild /t:Il2CppInspector_GUI:publish /p:Configuration=Release /p:Platform="Any CPU" /p:TargetFramework=net9.0-windows /p:SelfContained=false /verbosity:minimal
+        run: dotnet publish ./Il2CppInspector.GUI/Il2CppInspector.GUI.csproj --configuration Release --framework net9.0-windows --self-contained false
 
       - name: Build CLI
-        run: msbuild /t:Il2CppInspector_CLI:publish /p:Configuration=Release /p:Platform="Any CPU" /p:TargetFramework=net9.0 /p:SelfContained=false /verbosity=minimal
+        run: dotnet publish ./Il2CppInspector.CLI/Il2CppInspector.CLI.csproj --configuration Release --framework net9.0 --self-contained false
 
       - name: Add Plugins folder (GUI)
         shell: pwsh
