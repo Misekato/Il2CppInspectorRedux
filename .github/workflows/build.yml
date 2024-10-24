@@ -2,7 +2,7 @@ name: Il2CppInspectorRedux Build
 
 on:
   push:
-    branches: [master,refactored-versioning]
+    branches: [master, refactored-versioning]
 
   workflow_dispatch:
 
@@ -15,13 +15,14 @@ jobs:
         with:
           submodules: true
 
+      # Install .NET 9 SDK explicitly
       - name: Install .NET 9 SDK
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '9.0.x'
-          
+
       - uses: microsoft/setup-msbuild@v1.1
-  
+
       - uses: actions/cache@v3
         with:
           path: ~/.nuget/packages
@@ -30,22 +31,22 @@ jobs:
               ${{ runner.os }}-nuget-
 
       - name: Restore NuGet packages
-        run: nuget restore
+        run: dotnet restore
       
       - name: Build GUI
         run: msbuild /t:Il2CppInspector_GUI:publish /p:Configuration=Release /p:Platform="Any CPU" /p:TargetFramework=net9.0-windows /p:SelfContained=false /verbosity:minimal
 
       - name: Build CLI
-        run: msbuild /t:Il2CppInspector_CLI:publish /p:Configuration=Release /p:Platform="Any CPU" /p:TargetFramework=net9.0 /p:SelfContained=false /verbosity:minimal
+        run: msbuild /t:Il2CppInspector_CLI:publish /p:Configuration=Release /p:Platform="Any CPU" /p:TargetFramework=net9.0 /p:SelfContained=false /verbosity=minimal
 
       - name: Add Plugins folder (GUI)
         shell: pwsh
-        working-directory: Il2CppInspector.GUI/bin/Release/net8.0-windows/win-x64/publish
+        working-directory: Il2CppInspector.GUI/bin/Release/net9.0-windows/win-x64/publish
         run: ../../../../../../get-plugins.ps1
 
       - name: Add Plugins folder (CLI)
         shell: pwsh
-        working-directory: Il2CppInspector.CLI/bin/Release/net8.0/win-x64/publish
+        working-directory: Il2CppInspector.CLI/bin/Release/net9.0/win-x64/publish
         run: ../../../../../../get-plugins.ps1
 
       - name: Upload GUI Artifact
@@ -59,4 +60,3 @@ jobs:
         with:
           name: Il2CppInspectorRedux.CLI
           path: Il2CppInspector.CLI/bin/Release/net9.0/win-x64/publish
-
