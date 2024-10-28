@@ -71,6 +71,7 @@ public partial record struct Il2CppCodeRegistration
     [NativeInteger]
     [VersionCondition(GreaterThan = "22.0", LessThan = "27.2")]
     [VersionCondition(EqualTo = "29.0", IncludingTag = "")]
+    [VersionCondition(EqualTo = "31.0", IncludingTag = "")]
     public int UnresolvedVirtualCallCount;
 
     [NativeInteger]

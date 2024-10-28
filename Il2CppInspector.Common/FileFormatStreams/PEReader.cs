@@ -161,12 +161,17 @@ namespace Il2CppInspector
             return addrs.ToArray();
         }
 
-        public override IEnumerable<Export> GetExports() {
+        public override IEnumerable<Export> GetExports()
+        {
+            var exportDirectory = pe.DataDirectory[0];
+            if (exportDirectory.Size == 0)
+                return [];
+
             // Get exports table
-            var ETStart = pe.DataDirectory[0].VirtualAddress + pe.ImageBase;
+            var exportTableStart = exportDirectory.VirtualAddress + pe.ImageBase;
 
             // Get export RVAs
-            var exportDirectoryTable = ReadObject<PEExportDirectory>(MapVATR(ETStart));
+            var exportDirectoryTable = ReadObject<PEExportDirectory>(MapVATR(exportTableStart));
             var exportCount = (int) exportDirectoryTable.NumberOfFunctions;
             var exportAddresses = ReadArray<uint>(MapVATR(exportDirectoryTable.AddressOfFunctions + pe.ImageBase), exportCount);
             var exports = exportAddresses.Select((a, i) => new Export {
